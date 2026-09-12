@@ -18,6 +18,7 @@ JSON_TYPE_MAP = {
     "boolean": bool,
     "array": list,
     "object": dict,
+    "null": type(None),
 }
 
 
@@ -111,6 +112,13 @@ class SchemaTransformer:
                     python_type = union_types[0]
                 else:
                     python_type = Union[tuple(union_types)]
+        # A JSON Schema type array is a union of its listed types.
+        elif isinstance(prop_schema.get("type"), list):
+            union_types = [
+                SchemaTransformer.json_to_pydantic_field({**prop_schema, "type": json_type}, True, root_schema, model_cache)[0]
+                for json_type in prop_schema["type"]
+            ]
+            python_type = Union[tuple(union_types)]
         # Handle regular types
         else:
             json_type = prop_schema.get("type")
@@ -119,15 +127,7 @@ class SchemaTransformer:
 
                 if json_type == "array":
                     items_schema = prop_schema.get("items", {})
-                    if "$ref" in items_schema:
-                        item_type = SchemaTransformer._resolve_ref(items_schema["$ref"], root_schema, model_cache)
-                    elif "oneOf" in items_schema or "anyOf" in items_schema:
-                        # Handle arrays of unions
-                        item_type, _ = SchemaTransformer.json_to_pydantic_field(items_schema, True, root_schema, model_cache)
-                    elif items_schema.get("type") in JSON_TYPE_MAP:
-                        item_type = JSON_TYPE_MAP[items_schema["type"]]
-                    else:
-                        item_type = Any
+                    item_type, _ = SchemaTransformer.json_to_pydantic_field(items_schema, True, root_schema, model_cache)
                     python_type = List[item_type]
 
                 elif json_type == "object":
