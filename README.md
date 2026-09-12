@@ -352,6 +352,7 @@ Atomic Forge is a collection of tools that can be used with Atomic Agents to ext
 - Hacker News Search
 - PDF Reader
 - SearXNG Search
+- Serply Search
 - Tavily Search
 - Webpage Scraper
 - Weather
