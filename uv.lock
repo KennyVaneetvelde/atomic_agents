@@ -8,6 +8,7 @@ resolution-markers = [
 
 [manifest]
 members = [
+    "agent-guild-observation-tool",
     "arxiv-search",
     "atomic-agents",
     "basic-multimodal",
@@ -39,6 +40,39 @@ members = [
     "youtube-summarizer",
     "youtube-to-recipe",
     "youtube-transcript-scraper",
+]
+
+[[package]]
+name = "agent-guild-observation-tool"
+version = "0.1.0"
+source = { editable = "atomic-forge/tools/agent_guild_observation" }
+dependencies = [
+    { name = "atomic-agents" },
+    { name = "httpx" },
+    { name = "pydantic" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "coverage" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "atomic-agents", editable = "." },
+    { name = "httpx", specifier = ">=0.28.1,<1.0.0" },
+    { name = "pydantic", specifier = ">=2.11.0,<3.0.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "coverage", specifier = ">=7.6.1,<8.0.0" },
+    { name = "pytest", specifier = ">=8.3.3,<9.0.0" },
+    { name = "pytest-asyncio", specifier = ">=0.24.0,<1.0.0" },
+    { name = "pytest-cov", specifier = ">=5.0.0,<6.0.0" },
 ]
 
 [[package]]

@@ -13,6 +13,8 @@ Please use the [Atomic Assembler CLI](../README.md) as mentioned in the main [RE
 ## Tools
 The Atomic Forge project includes the following tools:
 
+- [Agent Guild Observation](/atomic-forge/tools/agent_guild_observation/README.md) — optional live observations for a selected public agent endpoint, with explicit unknowns.
+
 - [arXiv Search](/atomic-forge/tools/arxiv_search/README.md) — search the free arXiv public API for academic papers.
 - [BoCha Search](/atomic-forge/tools/bocha_search/README.md)
 - [Calculator](/atomic-forge/tools/calculator/README.md)
