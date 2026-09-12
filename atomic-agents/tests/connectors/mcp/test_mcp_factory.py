@@ -93,6 +93,33 @@ def test_fetch_mcp_tools_with_definitions_http(monkeypatch):
     assert tool_cls._has_typed_output_schema is False
 
 
+@pytest.mark.parametrize("nullable_schema_location", ["input", "output"])
+def test_fetch_mcp_tools_preserves_nullable_schema(monkeypatch, nullable_schema_location):
+    """A tool must not disappear when its input or output contains a type array."""
+    nullable_schema = {
+        "type": "object",
+        "properties": {"query": {"type": ["string", "null"]}},
+        "required": ["query"],
+    }
+    definition = MCPToolDefinition(
+        name="SearchTool",
+        description="Search tool",
+        input_schema=nullable_schema if nullable_schema_location == "input" else {"type": "object"},
+        output_schema=nullable_schema if nullable_schema_location == "output" else None,
+    )
+    monkeypatch.setattr(MCPFactory, "_fetch_tool_definitions", lambda self: [definition])
+
+    tools = fetch_mcp_tools("http://example.com", MCPTransportType.HTTP_STREAM)
+
+    assert len(tools) == 1
+    tool_cls = tools[0]
+    if nullable_schema_location == "input":
+        assert tool_cls.input_schema(tool_name="SearchTool", query=None).query is None
+    else:
+        assert tool_cls._has_typed_output_schema is True
+        assert tool_cls.output_schema(query=None).query is None
+
+
 def test_fetch_mcp_tools_with_typed_output_schema(monkeypatch):
     """Test that tools with outputSchema get typed output models"""
     input_schema = {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}

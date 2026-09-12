@@ -71,6 +71,77 @@ class TestSchemaTransformer:
 
 
 class TestCreateModelFromSchema:
+    @pytest.mark.parametrize(
+        "prop_schema, valid_value",
+        [
+            ({"type": "null"}, None),
+            ({"type": ["string", "null"]}, "query"),
+            ({"type": ["null", "string"]}, "query"),
+            ({"anyOf": [{"type": "string"}, {"type": "null"}]}, "query"),
+            ({"oneOf": [{"type": "string"}, {"type": "null"}]}, "query"),
+        ],
+    )
+    def test_required_nullable_field(self, prop_schema, valid_value):
+        """A nullable MCP parameter still rejects other types and must be present."""
+        schema = {"type": "object", "properties": {"query": prop_schema}, "required": ["query"]}
+        model = SchemaTransformer.create_model_from_schema(schema, "SearchInput", "search")
+
+        assert model(tool_name="search", query=valid_value).query == valid_value
+        assert model(tool_name="search", query=None).query is None
+        with pytest.raises(ValueError):
+            model(tool_name="search", query={"unexpected": "object"})
+        with pytest.raises(ValueError):
+            model(tool_name="search")
+
+    @pytest.mark.parametrize("types", [["string"], ["string", "integer"]])
+    def test_type_array_without_null(self, types):
+        """Type arrays preserve the allowed types without implicitly allowing null."""
+        schema = {"type": "object", "properties": {"value": {"type": types}}, "required": ["value"]}
+        model = SchemaTransformer.create_model_from_schema(schema, "ValueOutput", "value", is_output_schema=True)
+
+        assert model(value="text").value == "text"
+        if "integer" in types:
+            assert model(value=42).value == 42
+        with pytest.raises(ValueError):
+            model(value=None)
+        with pytest.raises(ValueError):
+            model(value={})
+
+    @pytest.mark.parametrize("default", [None, "fallback"])
+    def test_optional_nullable_field_default(self, default):
+        """Converting a type array retains the property's default and description."""
+        schema = {
+            "type": "object",
+            "properties": {"query": {"type": ["string", "null"], "default": default, "description": "Search query"}},
+        }
+        model = SchemaTransformer.create_model_from_schema(schema, "SearchInput", "search")
+
+        assert model(tool_name="search").query == default
+        assert model.model_fields["query"].description == "Search query"
+        assert model(tool_name="search", query=None).query is None
+
+    @pytest.mark.parametrize(
+        "items, valid, invalid",
+        [
+            ({"type": ["string", "null"]}, ["text", None], [{}]),
+            ({"type": "null"}, [None], ["text"]),
+            ({"type": "array", "items": {"type": ["string", "null"]}}, [["text", None]], [[{}]]),
+        ],
+    )
+    def test_nullable_array_items(self, items, valid, invalid):
+        """Nullable array types retain their item types at each array depth."""
+        schema = {
+            "type": "object",
+            "properties": {"values": {"type": ["array", "null"], "items": items}},
+            "required": ["values"],
+        }
+        model = SchemaTransformer.create_model_from_schema(schema, "ValuesOutput", "values", is_output_schema=True)
+
+        assert model(values=valid).values == valid
+        assert model(values=None).values is None
+        with pytest.raises(ValueError):
+            model(values=invalid)
+
     def test_basic_model_creation(self):
         schema = {
             "type": "object",
