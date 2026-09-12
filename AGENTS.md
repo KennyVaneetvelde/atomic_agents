@@ -103,6 +103,7 @@ Each example is self-contained and demonstrates specific patterns and capabiliti
 - `hackernews_search/` - Hacker News search via the free Algolia API
 - `pdf_reader/` - PDF text + metadata extraction (local file or URL, page-range support)
 - `searxng_search/` - Privacy-focused search integration
+- `serply_search/` - Google web, news, and scholar search via the Serply API
 - `tavily_search/` - Tavily API search tool
 - `weather/` - Current conditions and daily/hourly forecast via Open-Meteo (no key)
 - `webpage_scraper/` - Web scraping capabilities

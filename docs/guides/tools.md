@@ -153,6 +153,7 @@ The Atomic Forge ships with several pre-built tools:
 - **Hacker News Search**: Search HN stories, comments, Show HN, Ask HN, polls (free Algolia API)
 - **PDF Reader**: Extract text and metadata from local or remote PDFs, with page-range filtering
 - **SearXNG Search**: Search the web using SearXNG
+- **Serply Search**: Google web, news, and scholar search via the Serply API
 - **Tavily Search**: AI-powered web search
 - **Weather**: Current conditions and daily/hourly forecasts via Open-Meteo (no key required)
 - **Webpage Scraper**: Extract content from web pages
