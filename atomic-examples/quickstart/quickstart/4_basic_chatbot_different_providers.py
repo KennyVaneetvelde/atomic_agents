@@ -90,6 +90,14 @@ def setup_client(provider):
         model = "openai/gpt-4o-mini"
         model_api_parameters = {"max_tokens": 2048}
         assistant_role = "assistant"
+    elif provider == "9" or provider == "atlascloud":
+        from openai import OpenAI as AtlasCloudClient
+
+        api_key = os.getenv("ATLASCLOUD_API_KEY")
+        client = instructor.from_openai(AtlasCloudClient(base_url="https://api.atlascloud.ai/v1", api_key=api_key))
+        model = "openai/gpt-5.6-luna"
+        model_api_parameters = {"max_tokens": 2048}
+        assistant_role = "assistant"
     else:
         raise ValueError(f"Unsupported provider: {provider}")
 
@@ -97,7 +105,17 @@ def setup_client(provider):
 
 
 # Prompt the user to choose a provider from one in the list below.
-providers_list = ["openai", "anthropic", "groq", "ollama", "gemini", "openrouter", "minimax", "edenai"]
+providers_list = [
+    "openai",
+    "anthropic",
+    "groq",
+    "ollama",
+    "gemini",
+    "openrouter",
+    "minimax",
+    "edenai",
+    "atlascloud",
+]
 y = "bold yellow"
 b = "bold blue"
 g = "bold green"
